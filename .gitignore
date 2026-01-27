@@ -65,3 +65,4 @@ models/
 *.pth
 *.pt
 *.ckpt
+RENDER_DEPLOY.md

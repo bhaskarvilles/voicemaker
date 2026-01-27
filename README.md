@@ -1,4 +1,6 @@
-# VoiceMaker - AI Voice Conversion Application
+# VoiceMaker by Kerdos AI - AI Voice Conversion Application
+
+**Developed by Kerdos Infrasoft Private Limited**
 
 Transform audio and text into any voice using AI-powered voice cloning technology.
 
@@ -169,4 +171,34 @@ This project uses Coqui TTS which is licensed under the Mozilla Public License 2
 
 ---
 
-**Made with ❤️ using AI-powered voice technology**
+## 🏢 About Kerdos Infrasoft
+
+**Kerdos Infrasoft Private Limited** is a cutting-edge technology company established in December 2023, based in Bengaluru, India. We specialize in:
+
+- 🤖 **Artificial Intelligence & Machine Learning**
+- ⛓️ **Blockchain Technology**
+- 💬 **Natural Language Processing**
+- 💻 **Advanced Software Development**
+
+### Our Mission
+Driving innovation and business growth across industries through cutting-edge AI, blockchain, and software solutions.
+
+### Recognition
+- ✅ Officially recognized under **Startup India Initiative** by the Government of India
+- 🏆 CIN: U62099KA2023PTC182869
+
+### Contact Us
+- 🌐 **Website**: [kerdos.io](https://kerdos.io)
+- 📧 **Email**: info@kerdos.io
+- 📍 **Location**: Bengaluru, Karnataka, India
+
+### Our Technologies
+We develop innovative solutions including:
+- AI-powered applications and platforms
+- Blockchain solutions for finance, healthcare, and supply chain
+- Enterprise software and cloud solutions
+- Data analytics and business intelligence tools
+
+---
+
+**Made with ❤️ by Kerdos Infrasoft using AI-powered voice technology**

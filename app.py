@@ -1,5 +1,6 @@
 """
 Voice Conversion Web Application
+Developed by Kerdos Infrasoft Private Limited
 Flask server providing API endpoints for voice cloning and conversion
 """
 
@@ -179,8 +180,12 @@ def validate_audio():
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("Voice Conversion Application")
+    print("VoiceMaker by Kerdos AI - Voice Conversion Application")
     print("=" * 60)
+    print("Developed by: Kerdos Infrasoft Private Limited")
+    print("Website: https://kerdos.in")
+    print("Email: info@kerdos.in")
+    print("-" * 60)
     print("\nStarting server...")
     print("Access the application at: http://localhost:5000")
     print("\nPress Ctrl+C to stop the server")
