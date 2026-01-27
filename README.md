@@ -190,7 +190,7 @@ Driving innovation and business growth across industries through cutting-edge AI
 ### Contact Us
 - 🌐 **Website**: [kerdos.in](https://kerdos.in)
 - 🎤 **Voice App**: [kerdos.sbs](https://kerdos.sbs)
-- 📧 **Email**: info@kerdos.io
+- 📧 **Email**: info@kerdos.in
 - 📍 **Location**: Bengaluru, Karnataka, India
 
 ### Our Technologies

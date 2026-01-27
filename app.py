@@ -184,7 +184,7 @@ if __name__ == '__main__':
     print("=" * 60)
     print("Developed by: Kerdos Infrasoft Private Limited")
     print("Website: https://kerdos.in")
-    print("Email: info@kerdos.io")
+    print("Email: info@kerdos.in")
     print("-" * 60)
     print("\nStarting server...")
     print("Access the application at: http://localhost:5000")
