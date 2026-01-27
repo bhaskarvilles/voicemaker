@@ -188,7 +188,8 @@ Driving innovation and business growth across industries through cutting-edge AI
 - 🏆 CIN: U62099KA2023PTC182869
 
 ### Contact Us
-- 🌐 **Website**: [kerdos.io](https://kerdos.io)
+- 🌐 **Website**: [kerdos.in](https://kerdos.in)
+- 🎤 **Voice App**: [kerdos.sbs](https://kerdos.sbs)
 - 📧 **Email**: info@kerdos.io
 - 📍 **Location**: Bengaluru, Karnataka, India
 
