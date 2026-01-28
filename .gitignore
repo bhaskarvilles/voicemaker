@@ -75,3 +75,4 @@ index-tts/__pycache__/
 index-tts/.pytest_cache/
 index-tts/.ruff_cache/
 index-tts/examples/*.wav
+index-tts
