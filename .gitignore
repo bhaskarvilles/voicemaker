@@ -66,3 +66,12 @@ models/
 *.pt
 *.ckpt
 RENDER_DEPLOY.md
+
+# Index-TTS2 specific
+index-tts/checkpoints/*
+!index-tts/checkpoints/.gitkeep
+index-tts/.venv/
+index-tts/__pycache__/
+index-tts/.pytest_cache/
+index-tts/.ruff_cache/
+index-tts/examples/*.wav

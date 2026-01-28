@@ -69,11 +69,48 @@
 
         <!-- Main content -->
         <main class="main-content">
-            <!-- Voice Selection Section -->
-            <section class="card voice-section">
+            <!-- Engine Selection Section -->
+            <section class="card engine-section">
                 <div class="card-header">
                     <h2>
                         <span class="step-number">1</span>
+                        Choose TTS Engine
+                    </h2>
+                    <p class="card-description">Select your preferred text-to-speech engine</p>
+                </div>
+
+                <div class="engine-selector">
+                    <button class="engine-btn active" data-engine="edge-tts" id="edgeTtsBtn">
+                        <div class="engine-icon">🎙️</div>
+                        <div class="engine-info">
+                            <div class="engine-name">Edge-TTS</div>
+                            <div class="engine-desc">300+ Pre-built Voices</div>
+                            <div class="engine-features">
+                                <span class="feature-tag">Fast</span>
+                                <span class="feature-tag">Multiple Languages</span>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="engine-btn" data-engine="index-tts2" id="indexTtsBtn">
+                        <div class="engine-icon">🎭</div>
+                        <div class="engine-info">
+                            <div class="engine-name">Index-TTS2</div>
+                            <div class="engine-desc">Voice Cloning & Emotions</div>
+                            <div class="engine-features">
+                                <span class="feature-tag">Clone Voice</span>
+                                <span class="feature-tag">Emotional</span>
+                            </div>
+                        </div>
+                        <div class="engine-status" id="indexTtsStatus"></div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Voice Selection Section (Edge-TTS) -->
+            <section class="card voice-section" id="edgeTtsSection">
+                <div class="card-header">
+                    <h2>
+                        <span class="step-number">2</span>
                         Choose a Voice
                     </h2>
                     <p class="card-description">Select from 300+ high-quality neural voices in multiple languages</p>
@@ -112,11 +149,123 @@
                 </div>
             </section>
 
+            <!-- Voice Cloning Section (Index-TTS2) -->
+            <section class="card voice-clone-section" id="indexTtsSection" style="display: none;">
+                <div class="card-header">
+                    <h2>
+                        <span class="step-number">2</span>
+                        Upload Reference Voice
+                    </h2>
+                    <p class="card-description">Upload 3-30 seconds of audio to clone the voice</p>
+                </div>
+
+                <div class="file-upload-area" id="referenceUploadArea">
+                    <input type="file" id="referenceAudioInput" accept="audio/*" style="display: none;">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <div class="upload-icon">🎵</div>
+                        <p class="upload-text">Click or drag audio file here</p>
+                        <p class="upload-subtext">Supported: WAV, MP3, OGG, FLAC, M4A (3-30 seconds recommended)</p>
+                    </div>
+                    <div class="upload-preview" id="uploadPreview" style="display: none;">
+                        <div class="preview-info">
+                            <span class="preview-icon">🎵</span>
+                            <span class="preview-name" id="previewName"></span>
+                            <button class="preview-remove" id="removeReference">✕</button>
+                        </div>
+                        <audio id="referencePreview" controls class="audio-preview"></audio>
+                    </div>
+                </div>
+
+                <!-- Emotional Control Section -->
+                <div class="emotion-control" id="emotionControl">
+                    <div class="card-header">
+                        <h3>Emotional Control (Optional)</h3>
+                        <p class="card-description">Add emotional expression to your speech</p>
+                    </div>
+
+                    <div class="emotion-mode-tabs">
+                        <button class="emotion-tab active" data-mode="none">No Emotion</button>
+                        <button class="emotion-tab" data-mode="audio">Audio Reference</button>
+                        <button class="emotion-tab" data-mode="manual">Manual Control</button>
+                    </div>
+
+                    <!-- Emotion Audio Upload -->
+                    <div class="emotion-mode-content" id="emotionAudioMode" style="display: none;">
+                        <div class="file-upload-area small" id="emotionUploadArea">
+                            <input type="file" id="emotionAudioInput" accept="audio/*" style="display: none;">
+                            <div class="upload-placeholder">
+                                <div class="upload-icon">🎭</div>
+                                <p class="upload-text">Upload emotional reference audio</p>
+                            </div>
+                            <div class="upload-preview" id="emotionUploadPreview" style="display: none;">
+                                <div class="preview-info">
+                                    <span class="preview-icon">🎭</span>
+                                    <span class="preview-name" id="emotionPreviewName"></span>
+                                    <button class="preview-remove" id="removeEmotion">✕</button>
+                                </div>
+                                <audio id="emotionPreview" controls class="audio-preview"></audio>
+                            </div>
+                        </div>
+                        <div class="emotion-intensity">
+                            <label>Emotion Intensity: <span id="emotionIntensityValue">100</span>%</label>
+                            <input type="range" id="emotionIntensity" min="0" max="100" value="100">
+                        </div>
+                    </div>
+
+                    <!-- Manual Emotion Control -->
+                    <div class="emotion-mode-content" id="emotionManualMode" style="display: none;">
+                        <div class="emotion-sliders">
+                            <div class="emotion-slider">
+                                <label>😊 Happy: <span class="emotion-value" id="happyValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="happy" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😠 Angry: <span class="emotion-value" id="angryValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="angry" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😢 Sad: <span class="emotion-value" id="sadValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="sad" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😨 Afraid: <span class="emotion-value" id="afraidValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="afraid" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>🤢 Disgusted: <span class="emotion-value" id="disgustedValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="disgusted" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😔 Melancholic: <span class="emotion-value"
+                                        id="melancholicValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="melancholic" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😲 Surprised: <span class="emotion-value" id="surprisedValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="surprised" min="0" max="100"
+                                    value="0">
+                            </div>
+                            <div class="emotion-slider">
+                                <label>😌 Calm: <span class="emotion-value" id="calmValue">0</span>%</label>
+                                <input type="range" class="emotion-range" data-emotion="calm" min="0" max="100"
+                                    value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Text Input Section -->
             <section class="card text-section">
                 <div class="card-header">
                     <h2>
-                        <span class="step-number">2</span>
+                        <span class="step-number">3</span>
                         Enter Your Text
                     </h2>
                     <p class="card-description">Type the text you want to convert to speech</p>
@@ -139,7 +288,7 @@
             <section class="card results-section" id="resultsSection" style="display: none;">
                 <div class="card-header">
                     <h2>
-                        <span class="step-number">3</span>
+                        <span class="step-number">4</span>
                         Your Generated Audio
                     </h2>
                     <p class="card-description">Listen to your AI-generated speech</p>

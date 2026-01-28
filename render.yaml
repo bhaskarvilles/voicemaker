@@ -1,0 +1,45 @@
+# VoiceMaker - Render Deployment Configuration
+# https://render.com
+
+# Service Configuration
+services:
+  - type: web
+    name: voicemaker-app
+    env: python
+    region: oregon  # Choose your preferred region
+    plan: starter  # Free tier (upgrade to standard for better performance)
+    
+    # Build Configuration
+    buildCommand: bash build.sh
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    
+    # Environment Variables
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: MAX_WORKERS
+        value: 2
+      - key: TIMEOUT
+        value: 120
+      
+    # Health Check
+    healthCheckPath: /api/health
+    
+    # Auto-Deploy
+    autoDeploy: true
+    
+    # Disk Storage (for models)
+    disk:
+      name: voicemaker-models
+      mountPath: /opt/render/project/src/index-tts/checkpoints
+      sizeGB: 5  # 5GB for Index-TTS2 models
+
+# Notes:
+# - Build time: ~10-15 minutes (first deployment)
+# - Models are cached on disk for faster subsequent deploys
+# - Upgrade to Standard plan for better CPU performance with Index-TTS2
+# - Free tier works but Index-TTS2 will be slower
