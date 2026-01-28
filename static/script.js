@@ -108,7 +108,15 @@ async function checkEngines() {
             elements.indexTtsStatus.innerHTML = '<span class="status-badge success">✓ Ready</span>';
             elements.indexTtsBtn.disabled = false;
         } else {
-            elements.indexTtsStatus.innerHTML = '<span class="status-badge warning">⚠ Setup Required</span>';
+            // Check if we're in a deployed environment
+            const isDeployed = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
+
+            if (isDeployed) {
+                elements.indexTtsStatus.innerHTML = '<span class="status-badge warning">⚠ Models Loading...</span>';
+            } else {
+                elements.indexTtsStatus.innerHTML = '<span class="status-badge warning">⚠ Deploy to Enable</span>';
+            }
             elements.indexTtsBtn.disabled = false; // Still allow clicking to show message
         }
 
@@ -135,7 +143,14 @@ function switchEngine(engineId) {
         elements.indexTtsSection.style.display = 'block';
 
         if (!state.indexTtsAvailable) {
-            showNotification('Index-TTS2 requires setup. Please download models first.', 'warning');
+            const isDeployed = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
+
+            if (isDeployed) {
+                showNotification('Index-TTS2 models are being downloaded. This may take a few minutes on first deployment.', 'warning');
+            } else {
+                showNotification('Index-TTS2 will be automatically set up when you deploy to Render. Models download during build (~10-15 min).', 'info');
+            }
         }
     }
 }
@@ -475,7 +490,14 @@ async function convertWithIndexTTS() {
     }
 
     if (!state.indexTtsAvailable) {
-        showNotification('Index-TTS2 is not available. Please run setup first.', 'error');
+        const isDeployed = window.location.hostname !== 'localhost' &&
+            window.location.hostname !== '127.0.0.1';
+
+        if (isDeployed) {
+            showNotification('Index-TTS2 models are still loading. Please wait a few minutes and try again.', 'warning');
+        } else {
+            showNotification('Index-TTS2 will be available after deployment to Render. Use Edge-TTS for now, or deploy your app!', 'info');
+        }
         return;
     }
 
