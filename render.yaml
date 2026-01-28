@@ -35,8 +35,8 @@ services:
     # Disk Storage (for models)
     disk:
       name: voicemaker-models
-      mountPath: /opt/render/project/src/index-tts/checkpoints
-      sizeGB: 5  # 5GB for Index-TTS2 models
+      mountPath: /opt/render/project/src/models
+      sizeGB: 5  # 5GB for Coqui TTS models
 
 # Notes:
 # - Build time: ~10-15 minutes (first deployment)

@@ -7,7 +7,6 @@ Flask server providing API endpoints for voice cloning and conversion
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from voice_converter import VoiceConverter
-from index_tts_converter import IndexTTSConverter
 from coqui_tts_converter import CoquiTTSConverter
 import os
 import tempfile
@@ -32,7 +31,6 @@ app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 # Initialize voice converters (lazy loading)
 voice_converter = None
-index_tts_converter = None
 coqui_tts_converter = None
 
 
@@ -44,16 +42,6 @@ def get_voice_converter():
         voice_converter = VoiceConverter()
         logger.info("Edge-TTS voice converter ready")
     return voice_converter
-
-
-def get_index_tts_converter():
-    """Lazy load the Index-TTS2 converter"""
-    global index_tts_converter
-    if index_tts_converter is None:
-        logger.info("Loading Index-TTS2 converter...")
-        index_tts_converter = IndexTTSConverter(use_fp16=False)  # CPU mode
-        logger.info("Index-TTS2 converter ready")
-    return index_tts_converter
 
 
 def get_coqui_tts_converter():
@@ -84,7 +72,6 @@ def health_check():
     return jsonify({
         'status': 'healthy',
         'edge_tts_loaded': voice_converter is not None,
-        'index_tts_loaded': index_tts_converter is not None,
         'coqui_tts_loaded': coqui_tts_converter is not None
     })
 
@@ -95,14 +82,6 @@ def get_engines():
     Get list of available TTS engines
     """
     try:
-        # Check Index-TTS2 availability
-        index_available = False
-        try:
-            converter = get_index_tts_converter()
-            index_available = converter.is_model_available()
-        except:
-            pass
-        
         # Check Coqui TTS availability
         coqui_available = False
         try:
@@ -118,13 +97,6 @@ def get_engines():
                 'description': '300+ pre-built neural voices',
                 'features': ['Multiple languages', 'Fast synthesis', 'No setup required'],
                 'available': True
-            },
-            {
-                'id': 'index-tts2',
-                'name': 'Index-TTS2',
-                'description': 'Advanced voice cloning and emotional synthesis',
-                'features': ['Voice cloning', 'Emotional control', 'High quality'],
-                'available': index_available
             },
             {
                 'id': 'coqui-tts',
