@@ -6,10 +6,12 @@ const state = {
     filteredVoices: [],
     resultAudioBlob: null,
     referenceAudio: null,
+    coquiAudio: null,
     emotionAudio: null,
     emotionMode: 'none',
     emotionVector: [0, 0, 0, 0, 0, 0, 0, 0], // [happy, angry, sad, afraid, disgusted, melancholic, surprised, calm]
-    indexTtsAvailable: false
+    indexTtsAvailable: false,
+    coquiTtsAvailable: false
 };
 
 // ===== DOM Elements =====
@@ -17,9 +19,12 @@ const elements = {
     // Engine selection
     edgeTtsBtn: document.getElementById('edgeTtsBtn'),
     indexTtsBtn: document.getElementById('indexTtsBtn'),
+    coquiTtsBtn: document.getElementById('coquiTtsBtn'),
     indexTtsStatus: document.getElementById('indexTtsStatus'),
+    coquiTtsStatus: document.getElementById('coquiTtsStatus'),
     edgeTtsSection: document.getElementById('edgeTtsSection'),
     indexTtsSection: document.getElementById('indexTtsSection'),
+    coquiTtsSection: document.getElementById('coquiTtsSection'),
 
     // Voice selection (Edge-TTS)
     voiceGrid: document.getElementById('voiceGrid'),
@@ -38,6 +43,16 @@ const elements = {
     previewName: document.getElementById('previewName'),
     referencePreview: document.getElementById('referencePreview'),
     removeReference: document.getElementById('removeReference'),
+
+    // Coqui TTS upload
+    coquiUploadArea: document.getElementById('coquiUploadArea'),
+    coquiAudioInput: document.getElementById('coquiAudioInput'),
+    coquiUploadPlaceholder: document.getElementById('coquiUploadPlaceholder'),
+    coquiUploadPreview: document.getElementById('coquiUploadPreview'),
+    coquiPreviewName: document.getElementById('coquiPreviewName'),
+    coquiReferencePreview: document.getElementById('coquiReferencePreview'),
+    removeCoquiReference: document.getElementById('removeCoquiReference'),
+    coquiLanguageSelect: document.getElementById('coquiLanguageSelect'),
 
     // Emotion control
     emotionControl: document.getElementById('emotionControl'),
@@ -100,10 +115,12 @@ async function checkEngines() {
 
         const data = await response.json();
         const indexEngine = data.engines.find(e => e.id === 'index-tts2');
+        const coquiEngine = data.engines.find(e => e.id === 'coqui-tts');
 
         state.indexTtsAvailable = indexEngine?.available || false;
+        state.coquiTtsAvailable = coquiEngine?.available || false;
 
-        // Update UI
+        // Update Index-TTS UI
         if (state.indexTtsAvailable) {
             elements.indexTtsStatus.innerHTML = '<span class="status-badge success">✓ Ready</span>';
             elements.indexTtsBtn.disabled = false;
@@ -120,9 +137,27 @@ async function checkEngines() {
             elements.indexTtsBtn.disabled = false; // Still allow clicking to show message
         }
 
+        // Update Coqui-TTS UI
+        if (state.coquiTtsAvailable) {
+            elements.coquiTtsStatus.innerHTML = '<span class="status-badge success">✓ Ready</span>';
+            elements.coquiTtsBtn.disabled = false;
+        } else {
+            // Check if we're in a deployed environment
+            const isDeployed = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
+
+            if (isDeployed) {
+                elements.coquiTtsStatus.innerHTML = '<span class="status-badge warning">⚠ Models Loading...</span>';
+            } else {
+                elements.coquiTtsStatus.innerHTML = '<span class="status-badge warning">⚠ Deploy to Enable</span>';
+            }
+            elements.coquiTtsBtn.disabled = false; // Still allow clicking to show message
+        }
+
     } catch (error) {
         console.error('Error checking engines:', error);
         elements.indexTtsStatus.innerHTML = '<span class="status-badge error">✕ Error</span>';
+        elements.coquiTtsStatus.innerHTML = '<span class="status-badge error">✕ Error</span>';
     }
 }
 
@@ -138,9 +173,11 @@ function switchEngine(engineId) {
     if (engineId === 'edge-tts') {
         elements.edgeTtsSection.style.display = 'block';
         elements.indexTtsSection.style.display = 'none';
-    } else {
+        if (elements.coquiTtsSection) elements.coquiTtsSection.style.display = 'none';
+    } else if (engineId === 'index-tts2') {
         elements.edgeTtsSection.style.display = 'none';
         elements.indexTtsSection.style.display = 'block';
+        if (elements.coquiTtsSection) elements.coquiTtsSection.style.display = 'none';
 
         if (!state.indexTtsAvailable) {
             const isDeployed = window.location.hostname !== 'localhost' &&
@@ -150,6 +187,21 @@ function switchEngine(engineId) {
                 showNotification('Index-TTS2 models are being downloaded. This may take a few minutes on first deployment.', 'warning');
             } else {
                 showNotification('Index-TTS2 will be automatically set up when you deploy to Render. Models download during build (~10-15 min).', 'info');
+            }
+        }
+    } else if (engineId === 'coqui-tts') {
+        elements.edgeTtsSection.style.display = 'none';
+        elements.indexTtsSection.style.display = 'none';
+        if (elements.coquiTtsSection) elements.coquiTtsSection.style.display = 'block';
+
+        if (!state.coquiTtsAvailable) {
+            const isDeployed = window.location.hostname !== 'localhost' &&
+                window.location.hostname !== '127.0.0.1';
+
+            if (isDeployed) {
+                showNotification('Coqui TTS models are being downloaded. This may take a few minutes on first deployment.', 'warning');
+            } else {
+                showNotification('Coqui TTS will be automatically set up when you deploy to Render. Models download during build.', 'info');
             }
         }
     }
@@ -361,6 +413,78 @@ function clearEmotionAudio() {
     elements.emotionAudioInput.value = '';
 }
 
+// ===== Coqui TTS File Upload Handlers =====
+function setupCoquiFileUpload() {
+    if (!elements.coquiUploadArea) return;
+
+    // Coqui audio upload
+    elements.coquiUploadArea.addEventListener('click', () => {
+        if (!state.coquiAudio) {
+            elements.coquiAudioInput.click();
+        }
+    });
+
+    elements.coquiUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elements.coquiUploadArea.classList.add('dragover');
+    });
+
+    elements.coquiUploadArea.addEventListener('dragleave', () => {
+        elements.coquiUploadArea.classList.remove('dragover');
+    });
+
+    elements.coquiUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elements.coquiUploadArea.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleCoquiAudio(files[0]);
+        }
+    });
+
+    elements.coquiAudioInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handleCoquiAudio(e.target.files[0]);
+        }
+    });
+
+    elements.removeCoquiReference.addEventListener('click', (e) => {
+        e.stopPropagation();
+        clearCoquiAudio();
+    });
+}
+
+function handleCoquiAudio(file) {
+    // Validate file type
+    const validTypes = ['audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/flac', 'audio/x-m4a'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(wav|mp3|ogg|flac|m4a)$/i)) {
+        showNotification('Invalid file type. Please upload an audio file.', 'error');
+        return;
+    }
+
+    state.coquiAudio = file;
+
+    // Update UI
+    elements.coquiUploadPlaceholder.style.display = 'none';
+    elements.coquiUploadPreview.style.display = 'block';
+    elements.coquiPreviewName.textContent = file.name;
+
+    // Create audio preview
+    const url = URL.createObjectURL(file);
+    elements.coquiReferencePreview.src = url;
+
+    showNotification('Reference audio uploaded successfully', 'success');
+}
+
+function clearCoquiAudio() {
+    state.coquiAudio = null;
+    elements.coquiUploadPlaceholder.style.display = 'block';
+    elements.coquiUploadPreview.style.display = 'none';
+    elements.coquiReferencePreview.src = '';
+    elements.coquiAudioInput.value = '';
+}
+
 // ===== Emotion Control =====
 function setupEmotionControl() {
     // Emotion mode tabs
@@ -417,8 +541,10 @@ function setupTextInput() {
 async function convertTextToSpeech() {
     if (state.selectedEngine === 'edge-tts') {
         await convertWithEdgeTTS();
-    } else {
+    } else if (state.selectedEngine === 'index-tts2') {
         await convertWithIndexTTS();
+    } else if (state.selectedEngine === 'coqui-tts') {
+        await convertWithCoquiTTS();
     }
 }
 
@@ -551,6 +677,76 @@ async function convertWithIndexTTS() {
     }
 }
 
+async function convertWithCoquiTTS() {
+    // Validate inputs
+    if (!state.coquiAudio) {
+        showNotification('Please upload a reference audio file', 'error');
+        return;
+    }
+
+    const text = elements.textInput.value.trim();
+    if (!text) {
+        showNotification('Please enter some text to convert', 'error');
+        return;
+    }
+
+    if (!state.coquiTtsAvailable) {
+        const isDeployed = window.location.hostname !== 'localhost' &&
+            window.location.hostname !== '127.0.0.1';
+
+        if (isDeployed) {
+            showNotification('Coqui TTS models are still loading. Please wait a few minutes and try again.', 'warning');
+        } else {
+            showNotification('Coqui TTS will be available after deployment to Render. Use Edge-TTS for now, or deploy your app!', 'info');
+        }
+        return;
+    }
+
+    try {
+        showLoading('Cloning voice with Coqui TTS... (this may take longer)');
+
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('speaker_audio', state.coquiAudio);
+
+        // Get selected language
+        const language = elements.coquiLanguageSelect ? elements.coquiLanguageSelect.value : 'en';
+        formData.append('language', language);
+
+        // Make API request
+        const response = await fetch('/api/coqui/clone-voice', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Voice cloning failed');
+        }
+
+        // Get audio blob
+        const blob = await response.blob();
+        state.resultAudioBlob = blob;
+
+        // Display result
+        const audioUrl = URL.createObjectURL(blob);
+        elements.resultAudio.src = audioUrl;
+        elements.resultsSection.style.display = 'block';
+
+        // Scroll to results
+        elements.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        hideLoading();
+        showNotification('Voice cloned successfully with Coqui TTS!', 'success');
+
+    } catch (error) {
+        hideLoading();
+        showNotification(error.message, 'error');
+        console.error('Coqui TTS error:', error);
+    }
+}
+
 function downloadAudio() {
     if (!state.resultAudioBlob) {
         showNotification('No audio to download', 'error');
@@ -575,6 +771,9 @@ function setupEventListeners() {
     // Engine selection
     elements.edgeTtsBtn.addEventListener('click', () => switchEngine('edge-tts'));
     elements.indexTtsBtn.addEventListener('click', () => switchEngine('index-tts2'));
+    if (elements.coquiTtsBtn) {
+        elements.coquiTtsBtn.addEventListener('click', () => switchEngine('coqui-tts'));
+    }
 
     // Voice search and filters (Edge-TTS)
     elements.voiceSearch.addEventListener('input', filterVoices);
@@ -583,6 +782,9 @@ function setupEventListeners() {
 
     // File uploads (Index-TTS2)
     setupFileUpload();
+
+    // File uploads (Coqui TTS)
+    setupCoquiFileUpload();
 
     // Emotion control
     setupEmotionControl();
